@@ -1,0 +1,5 @@
+# Ignorar variables de entorno locales
+.env
+
+# Ignorar carpeta de dependencias
+node_modules
