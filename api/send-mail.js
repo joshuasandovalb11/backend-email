@@ -1,10 +1,8 @@
-// Fichero: /api/send-email.js
-
 import nodemailer from 'nodemailer';
 
 // --- CONFIGURACIÓN PRINCIPAL ---
 // Lista de correos fijos que recibirán la notificación.
-const recipientEmails = ['erickjsandoval2000@gmail.com', 'erick.sandoval10@uabc.edu.mx'];
+const recipientEmails = ['erickjsandoval2000@gmail.com', 'credito@toolsdemexico.com.mx', 'marcos@toolsdemexico.com.mx'];
 // Nombre que aparecerá como remitente.
 const senderName = 'Tools de México';
 // ------------------------------
@@ -31,15 +29,13 @@ export default async function handler(req, res) {
       port: 465,                         // Puerto seguro (SSL)
       secure: true,                      // Forzamos el uso de SSL
       auth: {
-        user: process.env.GODADDY_EMAIL_USER,    // Tu correo de GoDaddy (leído desde las variables de entorno)
-        pass: process.env.GODADDY_EMAIL_PASSWORD, // Tu contraseña (leída desde las variables de entorno)
+        user: process.env.GODADDY_EMAIL_USER,    // Correo de GoDaddy (leído desde las variables de entorno)
+        pass: process.env.GODADDY_EMAIL_PASSWORD, // Contraseña (leída desde las variables de entorno)
       },
     });
 
     // 4. Construimos el contenido del correo.
     const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    
-    // Añadimos la opción timeZone para asegurarnos de que la hora sea la de tu región.
     const currentTime = new Date().toLocaleString('es-MX', { 
       dateStyle: 'long', 
       timeStyle: 'short',
@@ -55,12 +51,12 @@ export default async function handler(req, res) {
             <title>Registro de Nuevo Cliente</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background-color: #f7f8fc; line-height: 1.6; color: #2d3748;">
-            <div style="max-width: 800px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-radius: 16px; overflow: hidden;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-radius: 16px; overflow: hidden;">
                 
         <!-- Header -->
         <div style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); padding: 20px 30px; position: relative;">
             <div style="text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
                     Registro de Cliente
                 </h1>
             </div>
