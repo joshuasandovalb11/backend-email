@@ -1,45 +1,43 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // --- CONFIGURACIÓN PRINCIPAL ---
 // Lista de correos fijos que recibirán la notificación.
-const recipientEmails = ['credito@toolsdemexico.com.mx', 'marcos@toolsdemexico.com.mx'];
+const recipientEmails = [
+  "gps@toolsdemexico.com.mx",
+  "credito@toolsdemexico.com.mx",
+  "marcos@toolsdemexico.com.mx",
+];
 // Nombre que aparecerá como remitente.
-const senderName = 'Tools de México';
+const senderName = "Tools de México";
 // ------------------------------
 
-// Esta es la función principal que se ejecutará cuando se llame al endpoint.
 export default async function handler(req, res) {
-  // 1. Verificamos que la petición sea de tipo POST.
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido. Usa POST.' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método no permitido. Usa POST." });
   }
 
   try {
-    // 2. Extraemos los datos del cliente que envía la app de React Native.
     const { client_number, client_name, latitude, longitude } = req.body;
 
-    // Verificamos que los datos necesarios llegaron.
     if (!client_number || !client_name || !latitude || !longitude) {
-      return res.status(400).json({ error: 'Faltan datos en la petición.' });
+      return res.status(400).json({ error: "Faltan datos en la petición." });
     }
-    
-    // 3. Configuramos el "transporter" de Nodemailer.
+
     const transporter = nodemailer.createTransport({
-      host: 'smtpout.secureserver.net',   // Servidor SMTP de GoDaddy
-      port: 465,                         // Puerto seguro (SSL)
-      secure: true,                      // Forzamos el uso de SSL
+      host: "smtpout.secureserver.net", // Servidor SMTP de GoDaddy
+      port: 465,
+      secure: true, // Forzamos el uso de SSL
       auth: {
-        user: process.env.GODADDY_EMAIL_USER,    // Correo de GoDaddy (leído desde las variables de entorno)
+        user: process.env.GODADDY_EMAIL_USER, // Correo de GoDaddy (leído desde las variables de entorno)
         pass: process.env.GODADDY_EMAIL_PASSWORD, // Contraseña (leída desde las variables de entorno)
       },
     });
 
-    // 4. Construimos el contenido del correo.
     const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    const currentTime = new Date().toLocaleString('es-MX', { 
-      dateStyle: 'long', 
-      timeStyle: 'short',
-      timeZone: 'America/Tijuana' 
+    const currentTime = new Date().toLocaleString("es-MX", {
+      dateStyle: "long",
+      timeStyle: "short",
+      timeZone: "America/Tijuana",
     });
 
     const emailHtml = `
@@ -152,23 +150,19 @@ export default async function handler(req, res) {
     </html>
     `;
 
-    // 5. Enviamos el correo.
     await transporter.sendMail({
       from: `"${senderName}" <${process.env.GODADDY_EMAIL_USER}>`,
-      to: recipientEmails.join(', '),
+      to: recipientEmails.join(", "),
       subject: `Nuevo Cliente Registrado: #${client_number} - ${client_name}`,
       html: emailHtml,
     });
 
-    // 6. Si todo sale bien, enviamos una respuesta de éxito.
-    res.status(200).json({ message: 'Correo enviado con éxito.' });
-
+    res.status(200).json({ message: "Correo enviado con éxito." });
   } catch (error) {
-    // 7. Si algo falla, lo registramos en la consola del servidor y enviamos un error.
-    console.error('Error al enviar el correo:', error);
-    res.status(500).json({ 
-      error: 'Error interno del servidor al enviar el correo.',
-      details: error.message 
+    console.error("Error al enviar el correo:", error);
+    res.status(500).json({
+      error: "Error interno del servidor al enviar el correo.",
+      details: error.message,
     });
   }
 }
