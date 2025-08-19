@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const transporter = nodemailer.createTransport({
       host: "smtp.office365.com", // Servidor SMTP de GoDaddy
-      port: 587,
+      port: 465,
       secure: true,
       auth: {
         user: process.env.GODADDY_EMAIL_USER, // Correo de GoDaddy (leído desde las variables de entorno)
