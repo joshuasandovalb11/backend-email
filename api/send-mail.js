@@ -3,7 +3,6 @@ import nodemailer from "nodemailer";
 // --- CONFIGURACIÓN PRINCIPAL ---
 // Lista de correos fijos que recibirán la notificación.
 const recipientEmails = [
-  "erickjsandoval2000@gmail.com",
   "credito@toolsdemexico.com.mx",
   "marcos@toolsdemexico.com.mx",
 ];
