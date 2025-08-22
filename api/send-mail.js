@@ -1,12 +1,10 @@
 import nodemailer from "nodemailer";
 
 // --- CONFIGURACIÓN PRINCIPAL ---
-// Lista de correos fijos que recibirán la notificación.
 const recipientEmails = [
   "credito@toolsdemexico.com.mx",
   "marcos@toolsdemexico.com.mx",
 ];
-// Nombre que aparecerá como remitente.
 const senderName = "Tools de México";
 // ------------------------------
 
@@ -16,23 +14,39 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { client_number, client_name, latitude, longitude } = req.body;
+    // CAMBIO: Se aceptan los datos del vendedor desde la app.
+    const {
+      client_number,
+      client_name,
+      latitude,
+      longitude,
+      salesperson_name,
+      salesperson_phone,
+    } = req.body;
 
-    if (!client_number || !client_name || !latitude || !longitude) {
+    // CAMBIO: Se valida que los nuevos datos del vendedor existan.
+    if (
+      !client_number ||
+      !client_name ||
+      !latitude ||
+      !longitude ||
+      !salesperson_name ||
+      !salesperson_phone
+    ) {
       return res.status(400).json({ error: "Faltan datos en la petición." });
     }
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.office365.com", // Servidor SMTP de GoDaddy
-      port: 587,
+      host: "smtp.office365.com", // Servidor de GoDaddy
+      port: 587, // Puertos compatibles para envio de correos
       secure: false,
       auth: {
-        user: process.env.GODADDY_EMAIL_USER, // Correo de GoDaddy (leído desde las variables de entorno)
-        pass: process.env.GODADDY_EMAIL_PASSWORD, // Contraseña (leída desde las variables de entorno)
+        user: process.env.GODADDY_EMAIL_USER, // Correo electronico de GoDaddy (Variables de entorno)
+        pass: process.env.GODADDY_EMAIL_PASSWORD, // Contraseña del correo de GoDaddy (Variables de entorno)
       },
     });
 
-    const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    const mapLink = `http://maps.google.com/maps?q=${latitude},${longitude}`;
     const currentTime = new Date().toLocaleString("es-MX", {
       dateStyle: "long",
       timeStyle: "short",
@@ -50,19 +64,17 @@ export default async function handler(req, res) {
         <body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background-color: #f7f8fc; line-height: 1.6; color: #2d3748;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-radius: 16px; overflow: hidden;">
                 
-        <!-- Header -->
-        <div style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); padding: 20px 30px; position: relative;">
-            <div style="text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
-                    Registro de Cliente
-                </h1>
-            </div>
-        </div>
+                <div style="background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%); padding: 20px 30px; position: relative;">
+                    <div style="text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                            Registro de Cliente
+                        </h1>
+                    </div>
+                </div>
                 
-                <!-- Client Information -->
-                <div style="background-color: #f7fafc; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin-bottom: 15px; margin-top: 10px">
-                    <div style="background-color: #edf2f7; padding: 5px 24px; border-bottom: 1px solid #e2e8f0;">
-                        <h3 style="margin: 0; color: #2d3748; font-size: 18px; font-weight: 600; letter-spacing: -0.3px;">
+                <div style="background-color: #f0fdf4; border-radius: 12px; border: 1px solid #a7f3d0; overflow: hidden; margin: 20px 20px 0;">
+                    <div style="background-color: #d1fae5; padding: 8px 24px; border-bottom: 1px solid #a7f3d0;">
+                        <h3 style="margin: 0; color: #065f46; font-size: 18px; font-weight: 600; letter-spacing: -0.3px;">
                             Información del Cliente
                         </h3>
                     </div>
@@ -111,8 +123,43 @@ export default async function handler(req, res) {
                     </div>
                 </div>
 
-                <!-- Map Section -->
-                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center;">
+                <div style="background-color: #f7fafc; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin: 20px;">
+                    <div style="background-color: #dde9f5ff; padding: 5px 24px; border-bottom: 1px solid #e2e8f0;">
+                        <h3 style="margin: 0; color: #2d3748; font-size: 18px; font-weight: 600; letter-spacing: -0.3px;">
+                            Registrado Por
+                        </h3>
+                    </div>
+                    <div style="padding: 5px 24px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 16px 0; border-bottom: 1px solid #e5e7eb; width: 140px;">
+                                    <div style="color: #374151; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Vendedor
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 0; border-bottom: 1px solid #e5e7eb;">
+                                    <div style="color: #1a202c; font-size: 16px; font-weight: 600; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
+                                        ${salesperson_name}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 16px 0;">
+                                    <div style="color: #374151; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Teléfono
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 0;">
+                                    <div style="color: #1a202c; font-size: 16px; font-weight: 600; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
+                                        ${salesperson_phone}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin: 20px;">
                     <div style="margin-bottom: 20px; text-align: center;">
                         <div style="width: 48px; height: 48px; line-height: 48px; background-color: #4299e1; border-radius: 50%; margin: 0 auto; text-align: center;">
                             <span style="font-size: 25px; vertical-align: middle;">🌍</span>
@@ -133,7 +180,6 @@ export default async function handler(req, res) {
                 </div>
             </div>
 
-            <!-- Footer -->
             <div style="background-color: #f7fafc; padding: 24px 30px; border-top: 1px solid #e2e8f0;">
                 <div style="text-align: center;">
                     <p style="color: #a0aec0; margin: 0; font-size: 13px; font-weight: 500;">
