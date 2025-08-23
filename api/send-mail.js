@@ -9,13 +9,21 @@ const recipientEmails = [
 const senderName = "Tools de México";
 // ------------------------------
 
+const formatPhoneNumber = (phone) => {
+  const cleaned = ("" + phone).replace(/\D/g, "");
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+  return phone;
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método no permitido. Usa POST." });
   }
 
   try {
-    // CAMBIO: Se aceptan los datos del vendedor desde la app.
     const {
       client_number,
       client_name,
@@ -25,7 +33,6 @@ export default async function handler(req, res) {
       salesperson_phone,
     } = req.body;
 
-    // CAMBIO: Se valida que los nuevos datos del vendedor existan.
     if (
       !client_number ||
       !client_name ||
@@ -38,12 +45,12 @@ export default async function handler(req, res) {
     }
 
     const transporter = nodemailer.createTransport({
-      host: "smtp.office365.com", // Servidor de GoDaddy
-      port: 587, // Puertos compatibles para envio de correos
+      host: "smtp.office365.com",
+      port: 587,
       secure: false,
       auth: {
-        user: process.env.GODADDY_EMAIL_USER, // Correo electronico de GoDaddy (Variables de entorno)
-        pass: process.env.GODADDY_EMAIL_PASSWORD, // Contraseña del correo de GoDaddy (Variables de entorno)
+        user: process.env.GODADDY_EMAIL_USER,
+        pass: process.env.GODADDY_EMAIL_PASSWORD,
       },
     });
 
@@ -53,6 +60,9 @@ export default async function handler(req, res) {
       timeStyle: "short",
       timeZone: "America/Tijuana",
     });
+
+    // CAMBIO: Se formatea el número del vendedor antes de insertarlo en el HTML.
+    const formattedPhone = formatPhoneNumber(salesperson_phone);
 
     const emailHtml = `
         <!DOCTYPE html>
@@ -85,7 +95,7 @@ export default async function handler(req, res) {
                             <tr>
                                 <td style="padding: 16px 0; border-bottom: 1px solid #e2e8f0; width: 140px;">
                                     <div style="color: #718096; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
-                                        ID Cliente
+                                        # Cliente
                                     </div>
                                 </td>
                                 <td style="padding: 16px 0; border-bottom: 1px solid #e2e8f0; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
@@ -152,7 +162,7 @@ export default async function handler(req, res) {
                                 </td>
                                 <td style="padding: 16px 0;">
                                     <div style="color: #1a202c; font-size: 16px; font-weight: 600; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
-                                        ${salesperson_phone}
+                                        ${formattedPhone}
                                     </div>
                                 </td>
                             </tr>
