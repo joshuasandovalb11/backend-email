@@ -2,7 +2,6 @@ import nodemailer from "nodemailer";
 
 // --- CONFIGURACIÓN PRINCIPAL ---
 const recipientEmails = [
-  "erickjsandoval2000@gmail.com",
   "credito@toolsdemexico.com.mx",
   "marcos@toolsdemexico.com.mx",
 ];
