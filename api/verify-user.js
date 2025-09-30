@@ -22,6 +22,7 @@ const authorizedUsers = [
   { phone: "6642225410", name: "RODRIGUEZ PRECIADO VIRIDIANA" },
   { phone: "6644084875", name: "TAPIA LEDEZMA ANDRES" },
   { phone: "6622974290", name: "Blanca Ramirez" },
+  { phone: "6632032986", name: "Antonia Rodriguez" },
   { phone: "6642251636", name: "PRUEBA" },
 ];
 // ------------------------------------
