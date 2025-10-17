@@ -5,11 +5,12 @@ const authorizedUsers = [
   { phone: "6621900175", name: "CABANILLAS GAXIOLA CARLOS" },
   { phone: "6642282840", name: "CERVANTES GONZALEZ LETICIA" },
   { phone: "6642229474", name: "DIAZ MILLAN MARCELINA" },
+  { phone: "6644049974", name: "FLORES VELAZQUEZ DENISSE" },
   { phone: "6644044293", name: "GARCIA REYES LAURA" },
   { phone: "6644114456", name: "GARCIA VEGA JULIAN" },
   { phone: "6644114629", name: "GONZALEZ LARA ANA LILIA" },
   { phone: "6644046318", name: "HERRERA LOPEZ CARLA" },
-  { phone: "6643866552", name: "MARTINEZ MADERA GABRIELA" },
+  { phone: "6862448150", name: "MARTINEZ MADERA GABRIELA" },
   { phone: "6643854677", name: "MEDINA JARAMILLO MARLIN" },
   { phone: "6644044073", name: "MEDRANO ELIZALDE JESUS" },
   { phone: "6643084034", name: "MONTES PINEDA MARIO ENRIQUE" },
@@ -18,12 +19,11 @@ const authorizedUsers = [
   { phone: "6624254723", name: "PEREZ HERNANDEZ JOEL" },
   { phone: "6642223859", name: "RENTERIA RODRIGUEZ YOLANDA" },
   { phone: "6643979685", name: "REYES NEVARES ANA MARIA" },
-  { phone: "6644049974", name: "RODRIGUEZ IBARRA ANTONIA" },
+  { phone: "6632032993", name: "RODRIGUEZ IBARRA ANTONIA" },
   { phone: "6642225410", name: "RODRIGUEZ PRECIADO VIRIDIANA" },
   { phone: "6644084875", name: "TAPIA LEDEZMA ANDRES" },
   { phone: "6622974290", name: "Blanca Ramirez" },
-  { phone: "6632032986", name: "Antonia Rodriguez" },
-  { phone: "6642251636", name: "PRUEBA" },
+  { phone: "6648171212", name: "PRUEBA" },
 ];
 // ------------------------------------
 
