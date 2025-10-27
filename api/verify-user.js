@@ -10,7 +10,7 @@ const authorizedUsers = [
   { phone: "6644114456", name: "GARCIA VEGA JULIAN" },
   { phone: "6644114629", name: "GONZALEZ LARA ANA LILIA" },
   { phone: "6644046318", name: "HERRERA LOPEZ CARLA" },
-  { phone: "6862448150", name: "MARTINEZ MADERA GABRIELA" },
+  { phone: "6643866552", name: "MARTINEZ MADERA GABRIELA" },
   { phone: "6643854677", name: "MEDINA JARAMILLO MARLIN" },
   { phone: "6644044073", name: "MEDRANO ELIZALDE JESUS" },
   { phone: "6643084034", name: "MONTES PINEDA MARIO ENRIQUE" },
