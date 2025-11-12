@@ -1,12 +1,11 @@
 import nodemailer from "nodemailer";
 
-// --- CONFIGURACIÓN PRINCIPAL ---
+// Configuracion de correos electronicos a los que se enviara la notificacion
 const recipientEmails = [
   "credito@toolsdemexico.com.mx",
   "marcos@toolsdemexico.com.mx",
 ];
 const senderName = "Tools de México";
-// ------------------------------
 
 const formatPhoneNumber = (phone) => {
   const cleaned = ("" + phone).replace(/\D/g, "");
@@ -60,7 +59,6 @@ export default async function handler(req, res) {
       timeZone: "America/Tijuana",
     });
 
-    // CAMBIO: Se formatea el número del vendedor antes de insertarlo en el HTML.
     const formattedPhone = formatPhoneNumber(salesperson_phone);
 
     const emailHtml = `

@@ -1,5 +1,4 @@
 // --- LISTA DE USUARIOS AUTORIZADOS ---
-// Se convierte en una lista de objetos para asociar un nombre a cada número.
 const authorizedUsers = [
   { phone: "6644114499", name: "BARBOSA HIGUERA EDGAR" },
   { phone: "6621900175", name: "CABANILLAS GAXIOLA CARLOS" },
@@ -22,11 +21,10 @@ const authorizedUsers = [
   { phone: "6632032986", name: "RODRIGUEZ IBARRA ANTONIA" },
   { phone: "6642225410", name: "RODRIGUEZ PRECIADO VIRIDIANA" },
   { phone: "6644084875", name: "TAPIA LEDEZMA ANDRES" },
+  { phone: "6121774238", name: "MARES MORALES JOSE RAFAEL" },
   { phone: "6622974290", name: "Blanca Ramirez" },
   { phone: "6648171212", name: "PRUEBA" },
-  { phone: "6121774238", name: "Rafael" },
 ];
-// ------------------------------------
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -41,14 +39,12 @@ export default async function handler(req, res) {
       .json({ success: false, error: "Número de teléfono no proporcionado." });
   }
 
-  // Se busca el objeto de usuario completo
   const user = authorizedUsers.find(
     (u) => u.phone === user_phone_number.trim()
   );
 
   if (user) {
     console.log(`Acceso concedido al número: ${user_phone_number}`);
-    // CAMBIO: Se devuelve el objeto de usuario (nombre y teléfono) a la app.
     return res.status(200).json({
       success: true,
       message: "Usuario verificado con éxito.",
