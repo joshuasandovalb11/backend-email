@@ -23,6 +23,7 @@ const authorizedUsers = [
   { phone: "6644084875", name: "TAPIA LEDEZMA ANDRES" },
   { phone: "6121774238", name: "MARES MORALES JOSE RAFAEL" },
   { phone: "6622974290", name: "Blanca Ramirez" },
+  { phone: "6621016488", name: "Javier Ruiz Navarro" },
   { phone: "6648171212", name: "PRUEBA" },
 ];
 
