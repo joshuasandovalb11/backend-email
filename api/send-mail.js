@@ -1,67 +1,71 @@
+// api/send-mail.js
 import nodemailer from "nodemailer";
 
 // Configuracion de correos electronicos a los que se enviara la notificacion
 const recipientEmails = [
-  "credito@toolsdemexico.com.mx",
-  "marcos@toolsdemexico.com.mx",
+    "erick.sandoval10@uabc.edu.mx",
+    // "credito@toolsdemexico.com.mx",
+    // "marcos@toolsdemexico.com.mx",
 ];
 const senderName = "Tools de México";
 
 const formatPhoneNumber = (phone) => {
-  const cleaned = ("" + phone).replace(/\D/g, "");
-  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-  if (match) {
-    return `${match[1]}-${match[2]}-${match[3]}`;
-  }
-  return phone;
+    const cleaned = ("" + phone).replace(/\D/g, "");
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+    return phone;
 };
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método no permitido. Usa POST." });
-  }
-
-  try {
-    const {
-      client_number,
-      client_name,
-      latitude,
-      longitude,
-      salesperson_name,
-      salesperson_phone,
-    } = req.body;
-
-    if (
-      !client_number ||
-      !client_name ||
-      !latitude ||
-      !longitude ||
-      !salesperson_name ||
-      !salesperson_phone
-    ) {
-      return res.status(400).json({ error: "Faltan datos en la petición." });
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Método no permitido. Usa POST." });
     }
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.office365.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.GODADDY_EMAIL_USER,
-        pass: process.env.GODADDY_EMAIL_PASSWORD,
-      },
-    });
+    try {
+        const {
+            client_number,
+            client_name,
+            client_phone,
+            latitude,
+            longitude,
+            salesperson_name,
+            salesperson_phone,
+        } = req.body;
 
-    const mapLink = `http://maps.google.com/maps?q=${latitude},${longitude}`;
-    const currentTime = new Date().toLocaleString("es-MX", {
-      dateStyle: "long",
-      timeStyle: "short",
-      timeZone: "America/Tijuana",
-    });
+        if (
+            !client_number ||
+            !client_name ||
+            !latitude ||
+            !longitude ||
+            !salesperson_name ||
+            !salesperson_phone
+        ) {
+            return res.status(400).json({ error: "Faltan datos en la petición." });
+        }
 
-    const formattedPhone = formatPhoneNumber(salesperson_phone);
+        const transporter = nodemailer.createTransport({
+            host: "smtp.office365.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.GODADDY_EMAIL_USER,
+                pass: process.env.GODADDY_EMAIL_PASSWORD,
+            },
+        });
 
-    const emailHtml = `
+        const mapLink = `http://maps.google.com/maps?q=${latitude},${longitude}`;
+        const currentTime = new Date().toLocaleString("es-MX", {
+            dateStyle: "long",
+            timeStyle: "short",
+            timeZone: "America/Tijuana",
+        });
+
+        const formattedPhone = formatPhoneNumber(salesperson_phone);
+        const finalClientPhone = client_phone || "No proporcionado";
+
+        const emailHtml = `
         <!DOCTYPE html>
         <html lang="es">
         <head>
@@ -110,6 +114,18 @@ export default async function handler(req, res) {
                                 <td style="padding: 16px 0; border-bottom: 1px solid #e2e8f0;">
                                     <div style="color: #1a202c; font-size: 16px; font-weight: 600; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
                                         ${client_name}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 16px 0; border-bottom: 1px solid #e2e8f0;">
+                                    <div style="color: #718096; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Teléfono
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 0; border-bottom: 1px solid #e2e8f0;">
+                                    <div style="color: #1a202c; font-size: 16px; font-weight: 600; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;">
+                                        ${finalClientPhone}
                                     </div>
                                 </td>
                             </tr>
@@ -203,19 +219,19 @@ export default async function handler(req, res) {
     </html>
     `;
 
-    await transporter.sendMail({
-      from: `"${senderName}" <${process.env.GODADDY_EMAIL_USER}>`,
-      to: recipientEmails.join(", "),
-      subject: `Nuevo Cliente Registrado: #${client_number} - ${client_name}`,
-      html: emailHtml,
-    });
+        await transporter.sendMail({
+            from: `"${senderName}" <${process.env.GODADDY_EMAIL_USER}>`,
+            to: recipientEmails.join(", "),
+            subject: `Nuevo Cliente Registrado: #${client_number} - ${client_name}`,
+            html: emailHtml,
+        });
 
-    res.status(200).json({ message: "Correo enviado con éxito." });
-  } catch (error) {
-    console.error("Error al enviar el correo:", error);
-    res.status(500).json({
-      error: "Error interno del servidor al enviar el correo.",
-      details: error.message,
-    });
-  }
+        res.status(200).json({ message: "Correo enviado con éxito." });
+    } catch (error) {
+        console.error("Error al enviar el correo:", error);
+        res.status(500).json({
+            error: "Error interno del servidor al enviar el correo.",
+            details: error.message,
+        });
+    }
 }

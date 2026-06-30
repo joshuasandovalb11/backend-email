@@ -1,3 +1,5 @@
+// api/verify-user.js
+
 // LISTA DE USUARIOS AUTORIZADOS
 const authorizedUsers = [
   { phone: "6644114499", name: "BARBOSA HIGUERA EDGAR" },
