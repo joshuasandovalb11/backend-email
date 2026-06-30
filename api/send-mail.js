@@ -3,9 +3,9 @@ import nodemailer from "nodemailer";
 
 // Configuracion de correos electronicos a los que se enviara la notificacion
 const recipientEmails = [
-    "erick.sandoval10@uabc.edu.mx",
-    // "credito@toolsdemexico.com.mx",
-    // "marcos@toolsdemexico.com.mx",
+    // "erick.sandoval10@uabc.edu.mx",
+    "credito@toolsdemexico.com.mx",
+    "marcos@toolsdemexico.com.mx",
 ];
 const senderName = "Tools de México";
 
