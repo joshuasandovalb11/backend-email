@@ -3,9 +3,9 @@ import nodemailer from "nodemailer";
 
 // Configuracion de correos electronicos a los que se enviara la notificacion
 const recipientEmails = [
-    // "erick.sandoval10@uabc.edu.mx",
-    "credito@toolsdemexico.com.mx",
-    "marcos@toolsdemexico.com.mx",
+    "erick.sandoval10@uabc.edu.mx",
+    // "credito@toolsdemexico.com.mx",
+    // "marcos@toolsdemexico.com.mx",
 ];
 const senderName = "Tools de México";
 
@@ -37,12 +37,14 @@ export default async function handler(req, res) {
         if (
             !client_number ||
             !client_name ||
-            !latitude ||
-            !longitude ||
             !salesperson_name ||
             !salesperson_phone
         ) {
             return res.status(400).json({ error: "Faltan datos en la petición." });
+        }
+
+        if (!client_phone && (!latitude || !longitude)) {
+            return res.status(400).json({ error: "Debes proveer al menos el teléfono o la ubicación del cliente." });
         }
 
         const transporter = nodemailer.createTransport({
@@ -64,6 +66,31 @@ export default async function handler(req, res) {
 
         const formattedPhone = formatPhoneNumber(salesperson_phone);
         const finalClientPhone = client_phone || "No proporcionado";
+
+        const finalCoordsHTML = (latitude && longitude)
+            ? `<strong>${latitude},${longitude}</strong>`
+            : `<span>No proporcionada</span>`;
+
+        const googleMapsSection = (latitude && longitude) ? `
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin: 20px;">
+                    <div style="margin-bottom: 20px; text-align: center;">
+                        <div style="width: 48px; height: 48px; line-height: 48px; background-color: #4299e1; border-radius: 50%; margin: 0 auto; text-align: center;">
+                            <span style="font-size: 25px; vertical-align: middle;">🌍</span>
+                        </div>
+                    </div>
+                    
+                    <h3 style="color: #2d3748; margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">
+                        Ubicación Geográfica
+                    </h3>
+                    <p style="color: #718096; margin: 0 0 24px 0; font-size: 14px;">
+                        Visualizar la ubicación exacta del cliente en el mapa
+                    </p>
+                    
+                    <a href="${mapLink}" 
+                    style="display: inline-block; background-color: #4299e1; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; letter-spacing: 0.3px; transition: all 0.2s ease; border: none; text-transform: uppercase;">
+                        Ver en Google Maps
+                    </a>
+                </div>` : '';
 
         const emailHtml = `
         <!DOCTYPE html>
@@ -138,7 +165,7 @@ export default async function handler(req, res) {
                                 <td style="padding: 16px 0;">
                                     <div style="background-color: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
                                         <div style="color: #4a5568; font-size: 16px; font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace; line-height: 1.5;">
-                                            <strong>${latitude},${longitude}</strong>
+                                            ${finalCoordsHTML}
                                         </div>
                                     </div>
                                 </td>
@@ -183,25 +210,7 @@ export default async function handler(req, res) {
                     </div>
                 </div>
 
-                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin: 20px;">
-                    <div style="margin-bottom: 20px; text-align: center;">
-                        <div style="width: 48px; height: 48px; line-height: 48px; background-color: #4299e1; border-radius: 50%; margin: 0 auto; text-align: center;">
-                            <span style="font-size: 25px; vertical-align: middle;">🌍</span>
-                        </div>
-                    </div>
-                    
-                    <h3 style="color: #2d3748; margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">
-                        Ubicación Geográfica
-                    </h3>
-                    <p style="color: #718096; margin: 0 0 24px 0; font-size: 14px;">
-                        Visualizar la ubicación exacta del cliente en el mapa
-                    </p>
-                    
-                    <a href="${mapLink}" 
-                    style="display: inline-block; background-color: #4299e1; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; letter-spacing: 0.3px; transition: all 0.2s ease; border: none; text-transform: uppercase;">
-                        Ver en Google Maps
-                    </a>
-                </div>
+                ${googleMapsSection}
             </div>
 
             <div style="background-color: #f7fafc; padding: 24px 30px; border-top: 1px solid #e2e8f0;">
