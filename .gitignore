@@ -3,3 +3,5 @@
 
 # Ignorar carpeta de dependencias
 node_modules
+.vercel
+.env*.local

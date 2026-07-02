@@ -3,10 +3,10 @@ import nodemailer from "nodemailer";
 
 // Configuracion de correos electronicos a los que se enviara la notificacion
 const recipientEmails = [
-    // "erick.sandoval10@uabc.edu.mx",
     "credito@toolsdemexico.com.mx",
     "marcos@toolsdemexico.com.mx",
     "logistica@toolsdemexico.com.mx",
+    // "erick.sandoval10@uabc.edu.mx",
 ];
 const senderName = "Tools de México";
 
@@ -229,18 +229,69 @@ export default async function handler(req, res) {
     </html>
     `;
 
-        await transporter.sendMail({
+        const emailPromise = transporter.sendMail({
             from: `"${senderName}" <${process.env.GODADDY_EMAIL_USER}>`,
             to: recipientEmails.join(", "),
             subject: `Nuevo Cliente Registrado: #${client_number} - ${client_name}`,
             html: emailHtml,
         });
 
-        res.status(200).json({ message: "Correo enviado con éxito." });
+        let webhookPromise;
+        if (process.env.GOOGLE_WEBHOOK_URL) {
+            webhookPromise = fetch(process.env.GOOGLE_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(req.body),
+            });
+        } else {
+            // Promesa resuelta por defecto si la URL no está definida
+            webhookPromise = Promise.resolve();
+        }
+
+        // Ejecutar envío de email y webhook en paralelo de forma segura
+        const [emailResult, webhookResult] = await Promise.allSettled([emailPromise, webhookPromise]);
+
+        let emailSuccess = emailResult.status === "fulfilled";
+        let webhookSuccess = false;
+
+        if (webhookResult.status === "fulfilled") {
+            // Si la URL no estaba definida, lo tomamos como success o ignorado
+            if (!process.env.GOOGLE_WEBHOOK_URL) {
+                webhookSuccess = true;
+            } else if (webhookResult.value && webhookResult.value.ok) {
+                webhookSuccess = true;
+            }
+        }
+
+        // Logs independientes para debugging en Vercel
+        if (!emailSuccess) {
+            console.error("Error al enviar el correo:", emailResult.reason);
+        }
+        if (webhookResult.status === "rejected") {
+            console.error("Error de red/conexión al webhook:", webhookResult.reason);
+        } else if (process.env.GOOGLE_WEBHOOK_URL && webhookResult.value && !webhookResult.value.ok) {
+            console.error("Error del webhook (HTTP status):", webhookResult.value.status, webhookResult.value.statusText);
+        }
+
+        // Si fallan ambos, enviamos código de error 500
+        if (!emailSuccess && !webhookSuccess && process.env.GOOGLE_WEBHOOK_URL) {
+            return res.status(500).json({
+                error: "Fallo completo: no se pudo enviar correo ni guardar en Sheets.",
+                emailError: emailResult.reason?.message,
+                webhookError: webhookResult.reason?.message
+            });
+        }
+
+        // Responder un estado 200 indicando el estatus parcial de cada servicio
+        res.status(200).json({
+            message: "Petición procesada.",
+            email_sent: emailSuccess,
+            webhook_sent: webhookSuccess
+        });
     } catch (error) {
-        console.error("Error al enviar el correo:", error);
+        console.error("Error general en el manejador:", error);
         res.status(500).json({
-            error: "Error interno del servidor al enviar el correo.",
+            error: "Error interno del servidor.",
             details: error.message,
         });
     }
