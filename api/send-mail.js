@@ -6,6 +6,7 @@ const recipientEmails = [
     // "erick.sandoval10@uabc.edu.mx",
     "credito@toolsdemexico.com.mx",
     "marcos@toolsdemexico.com.mx",
+    "logistica@toolsdemexico.com.mx",
 ];
 const senderName = "Tools de México";
 
