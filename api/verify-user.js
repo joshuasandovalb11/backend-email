@@ -20,7 +20,7 @@ const authorizedUsers = [
   { phone: "6644114456", name: "PENA GONZALES JESUS" },
   { phone: "6624254723", name: "PEREZ HERNANDEZ JOEL" },
   { phone: "6642223859", name: "RENTERIA RODRIGUEZ YOLANDA" },
-  // { phone: "6643979685", name: "REYES NEVARES ANA MARIA" },
+  { phone: "6643979685", name: "REYES NEVARES ANA MARIA" },
   { phone: "6632032986", name: "RODRIGUEZ IBARRA ANTONIA" },
   { phone: "6642225410", name: "RODRIGUEZ PRECIADO VIRIDIANA" },
   { phone: "6621900175", name: "RUIZ NAVARRO JAVIER" },
