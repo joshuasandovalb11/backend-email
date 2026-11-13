@@ -31,6 +31,38 @@ const formatPhoneNumber = (phone) => {
     return phone;
 };
 
+const sendEmailWithRetry = async (mailOptions, maxAttempts = 3) => {
+    let lastError;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const transporter = nodemailer.createTransport({
+            host: "smtp.office365.com",
+            port: 587,
+            secure: false,
+            connectionTimeout: 12000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000,
+            tls: {
+                minVersion: "TLSv1.2",
+            },
+            auth: {
+                user: process.env.GODADDY_EMAIL_USER,
+                pass: process.env.GODADDY_EMAIL_PASSWORD,
+            },
+        });
+
+        try {
+            return await transporter.sendMail(mailOptions);
+        } catch (err) {
+            lastError = err;
+            console.warn(`[SMTP] Intento ${attempt}/${maxAttempts} fallido (${err.code || err.message})`);
+            if (attempt < maxAttempts) {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+            }
+        }
+    }
+    throw lastError;
+};
+
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Método no permitido. Usa POST." });
@@ -90,19 +122,6 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: "Debes proveer al menos el teléfono o la ubicación del cliente." });
             }
         }
-
-        const transporter = nodemailer.createTransport({
-            host: "smtp.office365.com",
-            port: 587,
-            secure: false,
-            connectionTimeout: 25000,
-            greetingTimeout: 20000,
-            socketTimeout: 30000,
-            auth: {
-                user: process.env.GODADDY_EMAIL_USER,
-                pass: process.env.GODADDY_EMAIL_PASSWORD,
-            },
-        });
 
         const mapLink = `http://maps.google.com/maps?q=${latitude},${longitude}`;
         const currentTime = new Date().toLocaleString("es-MX", {
@@ -373,7 +392,7 @@ export default async function handler(req, res) {
 
         const emailSubject = isTestSubmission ? `[PRUEBA] ${baseSubject}` : baseSubject;
 
-        const emailPromise = transporter.sendMail({
+        const emailPromise = sendEmailWithRetry({
             from: `"${senderName}" <${process.env.GODADDY_EMAIL_USER}>`,
             to: recipientList.join(", "),
             subject: emailSubject,
@@ -472,9 +491,11 @@ export default async function handler(req, res) {
             console.error("Error del webhook (HTTP status):", webhookResult.value.status, webhookResult.value.statusText);
         }
 
-        if (!emailSuccess && !webhookSuccess && process.env.GOOGLE_WEBHOOK_URL) {
+        if (!emailSuccess) {
             return res.status(500).json({
-                error: "Fallo completo: no se pudo enviar correo ni guardar en Sheets.",
+                error: "No se pudo enviar el correo de notificación. Intenta de nuevo.",
+                email_sent: false,
+                db_saved: isLocation ? dbSuccess : undefined,
                 emailError: emailResult.reason?.message,
                 webhookError: webhookResult.reason?.message,
                 dbError: dbResult.reason?.message,
